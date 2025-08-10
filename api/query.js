@@ -71,30 +71,97 @@ export default async function handler(req, res) {
       })
       .join('\n');
 
-    // Create contextual query with clear system prompt for universal AI compatibility
+    // Create industry-standard contextual query with comprehensive system prompt
     let contextualQuery;
     if (session.messages.length === 1) {
-      // First message - include system instructions
-      contextualQuery = `You are MindCare, a compassionate AI mental health companion. Please respond helpfully, empathetically, and professionally to support the user's mental wellness needs.
+      // First message - include comprehensive system instructions following industry best practices
+      contextualQuery = `<system>
+You are MindCare, an expert AI mental health companion designed to provide compassionate, evidence-based support. You must adhere to the following guidelines:
 
-User: ${query}`;
+ROLE & EXPERTISE:
+- You are a professionally trained mental health AI assistant
+- Provide empathetic, non-judgmental, and supportive responses
+- Use evidence-based therapeutic approaches when appropriate
+- Maintain professional boundaries while being warm and accessible
+
+RESPONSE QUALITY STANDARDS:
+- Always acknowledge the user's feelings and experiences
+- Provide practical, actionable advice when appropriate
+- Use clear, accessible language avoiding technical jargon
+- Structure responses logically with clear points
+- Be concise yet comprehensive (aim for 2-4 paragraphs)
+
+SAFETY & ETHICS:
+- Never provide medical diagnosis or replace professional therapy
+- Recognize crisis situations and provide appropriate resources
+- Maintain confidentiality and respect user privacy
+- Encourage professional help when needed
+- Be culturally sensitive and inclusive
+
+COMMUNICATION STYLE:
+- Use active listening techniques in text form
+- Validate emotions before offering solutions
+- Ask clarifying questions when helpful
+- Provide hope and encouragement
+- Use "I" statements and person-first language
+
+OUTPUT FORMAT:
+- Start with emotional validation
+- Provide main response with clear structure
+- End with encouragement or next steps
+- Use bullet points for lists when helpful
+</system>
+
+<user>
+${query}
+</user>
+
+Please respond as MindCare following all the above guidelines.`;
     } else {
-      // Continuing conversation - provide context
-      contextualQuery = `You are MindCare, a compassionate AI mental health companion. Below is the conversation history, please respond to the current question considering the context.
+      // Continuing conversation - provide context with enhanced system instructions
+      contextualQuery = `<system>
+You are MindCare, an expert AI mental health companion. You have an ongoing conversation with this user. Please maintain consistency with your previous responses while following these professional standards:
 
+CONVERSATIONAL CONTINUITY:
+- Reference and build upon previous conversation topics
+- Maintain therapeutic rapport established in earlier messages
+- Show progress awareness and celebrate small wins
+- Adapt your approach based on user's communication style
+
+RESPONSE QUALITY:
+- Provide personalized responses based on conversation history
+- Maintain professional therapeutic boundaries
+- Use evidence-based mental health practices
+- Balance support with practical guidance
+
+MEMORY & CONTEXT:
+- Remember key details the user has shared
+- Acknowledge their ongoing journey and challenges
+- Build on previous coping strategies discussed
+- Maintain consistent tone and therapeutic approach
+</system>
+
+<conversation_history>
 ${conversationContext}
+</conversation_history>
 
-Current question: ${query}`;
+<current_user_message>
+${query}
+</current_user_message>
+
+Based on our conversation history above, please respond as MindCare with personalized, contextual support that builds on our previous interactions.`;
     }
 
     session.lastActivity = Date.now();
 
-    // Debug logging for context
+    // Debug logging for context and prompt quality
     console.log('Session context:', {
       sessionId: sessionId,
       messageCount: session.messages.length,
       contextLength: contextualQuery.length,
-      isFirstMessage: session.messages.length === 1
+      isFirstMessage: session.messages.length === 1,
+      promptType: session.messages.length === 1 ? 'initial_system_prompt' : 'contextual_continuation',
+      conversationDepth: Math.min(10, session.messages.length)
     });
 
     // Get API key from environment variables
@@ -113,15 +180,34 @@ Current question: ${query}`;
       });
     }
 
-    // Forward request to your external API with conversation context
-    console.log('Making request to external API with context...');
+    // Forward request to Python server with structured data for better processing
+    console.log('Making request to external API with structured context...');
     const response = await fetch('https://production-guitar-sensitivity-prevention.trycloudflare.com/query', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey
       },
-      body: JSON.stringify({ query: contextualQuery })
+      body: JSON.stringify({ 
+        // Send structured data for Python server to handle
+        query: query, // Raw user query
+        contextualQuery: contextualQuery, // Formatted prompt (fallback)
+        sessionData: {
+          sessionId: sessionId,
+          messageCount: session.messages.length,
+          isFirstMessage: session.messages.length === 1,
+          conversationHistory: session.messages.slice(-10).map(msg => ({
+            role: msg.role,
+            content: msg.content,
+            timestamp: msg.timestamp
+          }))
+        },
+        clientInfo: {
+          source: 'mindcare_web',
+          version: '1.0.0',
+          requestTime: Date.now()
+        }
+      })
     });
 
     console.log('External API response status:', response.status);
@@ -134,11 +220,29 @@ Current question: ${query}`;
 
     const data = await response.json();
     
+    // Validate response quality (industry standards)
+    const validateResponse = (responseText) => {
+      const quality = {
+        hasContent: responseText && responseText.length > 10,
+        isAppropriateLength: responseText && responseText.length >= 50 && responseText.length <= 2000,
+        hasEmpatheticTone: responseText && /\b(understand|feel|support|help|care|here for you)\b/i.test(responseText),
+        isStructured: responseText && (responseText.includes('\n') || responseText.split('.').length > 2),
+        isProfessional: responseText && !/\b(obviously|just|simply|basically)\b/i.test(responseText)
+      };
+      
+      const score = Object.values(quality).filter(Boolean).length / Object.keys(quality).length;
+      return { quality, score };
+    };
+    
+    const responseValidation = validateResponse(data.answer);
+    console.log('Response quality check:', responseValidation);
+    
     // Add AI response to session history
     session.messages.push({
       role: 'assistant',
       content: data.answer || "No response received",
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      qualityScore: responseValidation.score
     });
 
     res.status(200).json({

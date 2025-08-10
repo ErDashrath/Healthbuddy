@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Send, Brain, Heart, Users } from "lucide-react";
+import VoiceInterface from "./VoiceInterface";
 
 interface ThemeColors {
   text: string;
@@ -39,6 +40,8 @@ export default function WorkingChatInterface({ themeColors }: ChatInterfaceProps
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [sessionId] = useState(() => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [lastAiResponse, setLastAiResponse] = useState<string>("");
 
   // Auto-scroll to bottom when new messages are added
   const scrollToBottom = (smooth = true) => {
@@ -127,6 +130,9 @@ export default function WorkingChatInterface({ themeColors }: ChatInterfaceProps
       };
       
       setMessages(prev => [...prev, aiMessage]);
+      
+      // Set last AI response for voice output
+      setLastAiResponse(data.answer || "No response received");
     } catch (error) {
       console.error('❌ Error:', error);
       const errorMessage = {
@@ -135,6 +141,7 @@ export default function WorkingChatInterface({ themeColors }: ChatInterfaceProps
         sender: 'ai' as const
       };
       setMessages(prev => [...prev, errorMessage]);
+      setLastAiResponse("Connection error. Please try again.");
     } finally {
       if (!wasLoading) {
         setIsLoading(false);
@@ -147,6 +154,21 @@ export default function WorkingChatInterface({ themeColors }: ChatInterfaceProps
       e.preventDefault();
       handleSend();
     }
+  };
+
+  const handleVoiceInput = (transcript: string) => {
+    setMessage(transcript);
+    // Auto-send voice input after a short delay
+    setTimeout(() => {
+      if (transcript.trim()) {
+        handleSend();
+      }
+    }, 500);
+  };
+
+  const handleVoiceToggle = (enabled: boolean) => {
+    setVoiceEnabled(enabled);
+    console.log('🎤 Voice mode:', enabled ? 'enabled' : 'disabled');
   };
 
   return (
@@ -200,14 +222,24 @@ export default function WorkingChatInterface({ themeColors }: ChatInterfaceProps
           
           {/* Fixed Input Area at Bottom */}
           <div className="flex-shrink-0 p-3 border-t border-white/10 bg-black/5 backdrop-blur-sm">
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-4xl mx-auto space-y-3">
+              {/* Voice Interface */}
+              <VoiceInterface
+                onVoiceInput={handleVoiceInput}
+                onVoiceToggle={handleVoiceToggle}
+                aiResponse={lastAiResponse}
+                isListening={isLoading}
+                disabled={isLoading}
+              />
+              
+              {/* Text Input */}
               <div className="enhanced-card-bg rounded-lg border border-white/20 p-3">
                 <div className="relative">
                   <Input
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder={isLoading ? "AI is responding... You can still type!" : "Type your message..."}
+                    placeholder={voiceEnabled ? "Speak or type your message..." : (isLoading ? "AI is responding... You can still type!" : "Type your message...")}
                     className="pr-12 enhanced-input"
                   />
                   <Button 
@@ -235,12 +267,23 @@ export default function WorkingChatInterface({ themeColors }: ChatInterfaceProps
             </div>
             
             <Card className="p-4 enhanced-card-bg shadow-2xl border border-white/20">
+              {/* Voice Interface for Welcome Screen */}
+              <div className="mb-4">
+                <VoiceInterface
+                  onVoiceInput={handleVoiceInput}
+                  onVoiceToggle={handleVoiceToggle}
+                  aiResponse={lastAiResponse}
+                  isListening={isLoading}
+                  disabled={isLoading}
+                />
+              </div>
+              
               <div className="relative">
                 <Input
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Ask me anything about your mental health..."
+                  placeholder={voiceEnabled ? "Speak or type to start chatting..." : "Ask me anything about your mental health..."}
                   className="pr-12 enhanced-input"
                 />
                 <Button 
@@ -255,7 +298,9 @@ export default function WorkingChatInterface({ themeColors }: ChatInterfaceProps
                   )}
                 </Button>
               </div>
-              <p className="text-sm text-white/80 mt-2 enhanced-text-light">Press Enter to send</p>
+              <p className="text-sm text-white/80 mt-2 enhanced-text-light">
+                {voiceEnabled ? "Speak, type, or press Enter to send" : "Press Enter to send"}
+              </p>
             </Card>
             
             <div className="grid gap-4 md:grid-cols-3">
