@@ -1,3 +1,16 @@
+// In-memory session storage (in production, use Redis or a database)
+const sessions = new Map();
+
+// Clean up old sessions (older than 1 hour)
+setInterval(() => {
+  const oneHourAgo = Date.now() - 60 * 60 * 1000;
+  for (const [sessionId, session] of sessions.entries()) {
+    if (session.lastActivity < oneHourAgo) {
+      sessions.delete(sessionId);
+    }
+  }
+}, 5 * 60 * 1000); // Check every 5 minutes
+
 export default async function handler(req, res) {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -18,11 +31,48 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { query } = req.body;
+    const { query, sessionId } = req.body;
     
     if (!query) {
       return res.status(400).json({ error: 'Query is required' });
     }
+
+    // Get or create session
+    let session = sessions.get(sessionId);
+    if (!session) {
+      session = {
+        id: sessionId,
+        messages: [],
+        createdAt: Date.now(),
+        lastActivity: Date.now()
+      };
+      sessions.set(sessionId, session);
+      console.log(`Created new session: ${sessionId}`);
+    }
+
+    // Add user message to session history
+    session.messages.push({
+      role: 'user',
+      content: query,
+      timestamp: Date.now()
+    });
+
+    // Keep only last 20 messages to prevent context from getting too long
+    if (session.messages.length > 20) {
+      session.messages = session.messages.slice(-20);
+    }
+
+    // Build conversation context
+    const conversationContext = session.messages
+      .slice(-10) // Last 10 messages for context
+      .map(msg => `${msg.role}: ${msg.content}`)
+      .join('\n');
+
+    const contextualQuery = session.messages.length === 1 
+      ? query // First message, no context needed
+      : `Previous conversation:\n${conversationContext.slice(0, -query.length - 6)}\n\nCurrent question: ${query}`;
+
+    session.lastActivity = Date.now();
 
     // Get API key from environment variables
     const apiKey = process.env.API_KEY;
@@ -40,15 +90,15 @@ export default async function handler(req, res) {
       });
     }
 
-    // Forward request to your external API
-    console.log('Making request to external API...');
+    // Forward request to your external API with conversation context
+    console.log('Making request to external API with context...');
     const response = await fetch('https://production-guitar-sensitivity-prevention.trycloudflare.com/query', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey
       },
-      body: JSON.stringify({ query })
+      body: JSON.stringify({ query: contextualQuery })
     });
 
     console.log('External API response status:', response.status);
@@ -60,7 +110,19 @@ export default async function handler(req, res) {
     }
 
     const data = await response.json();
-    res.status(200).json(data);
+    
+    // Add AI response to session history
+    session.messages.push({
+      role: 'assistant',
+      content: data.answer || "No response received",
+      timestamp: Date.now()
+    });
+
+    res.status(200).json({
+      ...data,
+      sessionId: sessionId,
+      messageCount: session.messages.length
+    });
 
   } catch (error) {
     console.error('API Error:', error);
