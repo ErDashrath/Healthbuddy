@@ -62,17 +62,40 @@ export default async function handler(req, res) {
       session.messages = session.messages.slice(-20);
     }
 
-    // Build conversation context
+    // Build conversation context with universal formatting for any AI model
     const conversationContext = session.messages
       .slice(-10) // Last 10 messages for context
-      .map(msg => `${msg.role}: ${msg.content}`)
+      .map(msg => {
+        const role = msg.role === 'user' ? 'Human' : 'Assistant';
+        return `${role}: ${msg.content}`;
+      })
       .join('\n');
 
-    const contextualQuery = session.messages.length === 1 
-      ? query // First message, no context needed
-      : `Previous conversation:\n${conversationContext.slice(0, -query.length - 6)}\n\nCurrent question: ${query}`;
+    // Create contextual query with clear system prompt for universal AI compatibility
+    let contextualQuery;
+    if (session.messages.length === 1) {
+      // First message - include system instructions
+      contextualQuery = `You are MindCare, a compassionate AI mental health companion. Please respond helpfully, empathetically, and professionally to support the user's mental wellness needs.
+
+User: ${query}`;
+    } else {
+      // Continuing conversation - provide context
+      contextualQuery = `You are MindCare, a compassionate AI mental health companion. Below is the conversation history, please respond to the current question considering the context.
+
+${conversationContext}
+
+Current question: ${query}`;
+    }
 
     session.lastActivity = Date.now();
+
+    // Debug logging for context
+    console.log('Session context:', {
+      sessionId: sessionId,
+      messageCount: session.messages.length,
+      contextLength: contextualQuery.length,
+      isFirstMessage: session.messages.length === 1
+    });
 
     // Get API key from environment variables
     const apiKey = process.env.API_KEY;
