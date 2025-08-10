@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
     proxy: {
       '/api': {
-        target: 'https://production-guitar-sensitivity-prevention.trycloudflare.com',
+        target: 'https://plate-tomorrow-feeds-lasting.trycloudflare.com',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
         configure: (proxy, _options) => {
