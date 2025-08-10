@@ -182,7 +182,7 @@ Based on our conversation history above, please respond as MindCare with persona
 
     // Forward request to Python server with structured data for better processing
     console.log('Making request to external API with structured context...');
-    const response = await fetch('https://production-guitar-sensitivity-prevention.trycloudflare.com/query', {
+    const response = await fetch('https://plate-tomorrow-feeds-lasting.trycloudflare.com/query', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
