@@ -235,3 +235,25 @@ html {
 .scroll-smooth {
   scroll-behavior: smooth;
 }
+
+/* Fix for chat layout - ensure input stays at bottom */
+.chat-container {
+  height: 100vh;
+  max-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chat-messages {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.chat-input-fixed {
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+}

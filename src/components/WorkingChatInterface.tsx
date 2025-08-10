@@ -172,7 +172,7 @@ export default function WorkingChatInterface({ themeColors }: ChatInterfaceProps
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full">
+    <div className="flex-1 flex flex-col h-full min-h-0">
       {messages.length > 0 ? (
         <>
           {/* Header */}
@@ -198,8 +198,8 @@ export default function WorkingChatInterface({ themeColors }: ChatInterfaceProps
             </div>
           </div>
           
-          {/* Messages Area - Scrollable */}
-          <div className="flex-1 overflow-y-auto px-6 py-4 scroll-smooth" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+          {/* Messages Area - Scrollable with proper height calculation */}
+          <div className="flex-1 overflow-y-auto px-6 py-4 scroll-smooth min-h-0">
             <div className="max-w-4xl mx-auto space-y-4 pb-4">
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -220,8 +220,8 @@ export default function WorkingChatInterface({ themeColors }: ChatInterfaceProps
             </div>
           </div>
           
-          {/* Fixed Input Area at Bottom */}
-          <div className="flex-shrink-0 p-3 border-t border-white/10 bg-black/5 backdrop-blur-sm">
+          {/* Fixed Input Area at Bottom - Always visible */}
+          <div className="flex-shrink-0 sticky bottom-0 p-3 border-t border-white/10 bg-black/20 backdrop-blur-md z-10">
             <div className="max-w-4xl mx-auto space-y-3">
               {/* Voice Interface */}
               <VoiceInterface
