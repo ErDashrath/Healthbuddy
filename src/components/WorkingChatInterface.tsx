@@ -111,76 +111,85 @@ export default function WorkingChatInterface({ themeColors }: ChatInterfaceProps
   };
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen">
+    <div className="flex-1 flex flex-col h-full">
       {messages.length > 0 ? (
-        <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full px-6 py-4">
-          <div className="mb-4">
-            <h2 className="text-lg font-semibold text-white">HealthBuddy AI Chat</h2>
+        <>
+          {/* Header */}
+          <div className="flex-shrink-0 px-6 py-4 border-b border-white/10">
+            <h2 className="text-lg font-semibold text-white enhanced-text-visibility">MindCare AI Chat</h2>
           </div>
           
-          <div className="flex-1 overflow-y-auto space-y-4 mb-4">
-            {messages.map((msg) => (
-              <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[80%] p-4 rounded-lg ${msg.sender === 'user' ? 'bg-blue-600' : 'bg-gray-700'}`}>
-                  <p className="text-white">{msg.content}</p>
+          {/* Messages Area - Scrollable */}
+          <div className="flex-1 overflow-y-auto px-6 py-4">
+            <div className="max-w-4xl mx-auto space-y-4">
+              {messages.map((msg) => (
+                <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[80%] p-4 rounded-lg enhanced-card-bg ${msg.sender === 'user' ? 'border-blue-400/50' : 'border-gray-600/50'} border`}>
+                    <p className="text-white enhanced-text-visibility">{msg.content}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-gray-700 p-4 rounded-lg">
-                  <p className="text-white">🤖 AI is thinking...</p>
+              ))}
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="enhanced-card-bg p-4 rounded-lg border border-white/20">
+                    <p className="text-white enhanced-text-visibility">🤖 AI is thinking...</p>
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-          
-          <div className="p-4 bg-gray-800 rounded-lg">
-            <div className="relative">
-              <Input
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Type your message..."
-                disabled={isLoading}
-                className="pr-12 text-white bg-gray-900 border-gray-600"
-              />
-              <Button 
-                onClick={handleSend}
-                disabled={isLoading || !message.trim()}
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 hover:bg-blue-700"
-              >
-                <Send className="w-4 h-4" />
-              </Button>
+              )}
             </div>
           </div>
-        </div>
+          
+          {/* Fixed Input Area at Bottom */}
+          <div className="flex-shrink-0 p-4 border-t border-white/10">
+            <div className="max-w-4xl mx-auto">
+              <div className="enhanced-card-bg rounded-lg border border-white/20 p-4">
+                <div className="relative">
+                  <Input
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Type your message..."
+                    disabled={isLoading}
+                    className="pr-12 enhanced-input"
+                  />
+                  <Button 
+                    onClick={handleSend}
+                    disabled={isLoading || !message.trim()}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600/90 hover:bg-blue-700/90 border border-blue-400/50"
+                  >
+                    <Send className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
       ) : (
         <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">
           <div className="max-w-2xl w-full text-center space-y-8">
             <div className="space-y-4">
-              <h1 className="text-4xl font-bold text-white">🤖 HealthBuddy AI</h1>
-              <p className="text-lg text-gray-300">Your mental health companion</p>
+              <h1 className="text-4xl font-bold text-white enhanced-text-visibility">🤖 MindCare AI</h1>
+              <p className="text-lg text-white/90 enhanced-text-light">Your mental health companion</p>
             </div>
             
-            <Card className="p-6 bg-gray-800 border-gray-700">
+            <Card className="p-6 enhanced-card-bg shadow-2xl border border-white/20">
               <div className="relative">
                 <Input
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Ask me anything about your mental health..."
-                  className="pr-12 text-white bg-gray-900 border-gray-600"
+                  className="pr-12 enhanced-input"
                 />
                 <Button 
                   onClick={handleSend}
                   disabled={isLoading}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 hover:bg-blue-700"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600/90 hover:bg-blue-700/90 border border-blue-400/50"
                 >
                   <Send className="w-4 h-4" />
                 </Button>
               </div>
-              <p className="text-sm text-gray-400 mt-2">Press Enter to send</p>
+              <p className="text-sm text-white/80 mt-2 enhanced-text-light">Press Enter to send</p>
             </Card>
             
             <div className="grid gap-4 md:grid-cols-3">
@@ -188,10 +197,10 @@ export default function WorkingChatInterface({ themeColors }: ChatInterfaceProps
                 <Card 
                   key={index}
                   onClick={() => setMessage(`Tell me about ${suggestion.title.toLowerCase()}`)}
-                  className="p-4 cursor-pointer bg-gray-800 border-gray-700 hover:bg-gray-700 transition-colors"
+                  className="p-4 cursor-pointer enhanced-card-bg hover:bg-white/15 transition-all duration-300 hover:scale-105 shadow-lg border border-white/20"
                 >
-                  <h4 className="font-medium text-white mb-2">{suggestion.title}</h4>
-                  <p className="text-sm text-gray-300">{suggestion.description}</p>
+                  <h4 className="font-medium text-white mb-2 enhanced-text-visibility">{suggestion.title}</h4>
+                  <p className="text-sm text-white/90 enhanced-text-light">{suggestion.description}</p>
                 </Card>
               ))}
             </div>

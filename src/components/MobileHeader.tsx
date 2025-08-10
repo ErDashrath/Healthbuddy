@@ -20,8 +20,8 @@ export default function MobileHeader({ variant = 'transparent', showThemes = tru
           sound: true,
           colors: {
             text: 'text-gray-200',
-            cardBg: 'bg-gray-900/60',
-            buttonBg: 'bg-gray-800/60',
+            cardBg: 'bg-gray-900/40',
+            buttonBg: 'bg-gray-800/40',
             border: 'border-gray-700'
           }
         } 
@@ -35,9 +35,24 @@ export default function MobileHeader({ variant = 'transparent', showThemes = tru
           sound: true,
           colors: {
             text: 'text-blue-100',
-            cardBg: 'bg-blue-900/50',
-            buttonBg: 'bg-blue-800/50',
+            cardBg: 'bg-blue-900/30',
+            buttonBg: 'bg-blue-800/30',
             border: 'border-blue-600'
+          }
+        } 
+      }));
+    } else if (theme === 'Final') {
+      // Final theme - use final video with cinematic colors
+      window.dispatchEvent(new CustomEvent('themeChange', { 
+        detail: { 
+          theme: 'final', 
+          video: '/final.mp4', 
+          sound: true,
+          colors: {
+            text: 'text-purple-100',
+            cardBg: 'bg-purple-900/25',
+            buttonBg: 'bg-purple-800/25',
+            border: 'border-purple-600'
           }
         } 
       }));
@@ -50,9 +65,9 @@ export default function MobileHeader({ variant = 'transparent', showThemes = tru
           sound: false,
           colors: {
             text: 'text-white',
-            cardBg: 'bg-card/40',
-            buttonBg: 'bg-card/30',
-            border: 'border-border'
+            cardBg: 'bg-white/20',
+            buttonBg: 'bg-white/10',
+            border: 'border-white'
           }
         } 
       }));
@@ -66,9 +81,9 @@ export default function MobileHeader({ variant = 'transparent', showThemes = tru
       
       <div className="flex items-center gap-2">
         <div className="w-6 h-6 bg-gradient-wellness rounded-md flex items-center justify-center">
-          <span className="text-xs font-bold text-primary-foreground">H</span>
+          <span className="text-xs font-bold text-primary-foreground">M</span>
         </div>
-        <span className={`font-semibold ${variant === 'solid' ? 'text-foreground' : 'text-white'}`}>Healthbuddy</span>
+        <span className={`font-semibold enhanced-text-visibility ${variant === 'solid' ? 'text-foreground' : 'text-white'}`}>MindCare</span>
       </div>
       
       {showThemes && (
@@ -80,11 +95,11 @@ export default function MobileHeader({ variant = 'transparent', showThemes = tru
             Themes
           </button>
           {open && (
-            <div className={`absolute right-0 top-full mt-2 w-32 ${variant === 'solid' ? 'bg-card/90 backdrop-blur-md border border-border rounded-md shadow-lg' : 'bg-transparent'} z-50`}>
+            <div className={`absolute right-0 top-full mt-2 w-32 ${variant === 'solid' ? 'bg-card/90 backdrop-blur-md border border-border rounded-md shadow-lg' : 'enhanced-card-bg rounded-md shadow-xl'} z-50`}>
               <ul className="py-2">
                 <li>
                   <button 
-                    className={`w-full text-right px-4 py-2 ${variant === 'solid' ? 'text-foreground hover:bg-accent' : 'text-white hover:bg-white/10'} transition-colors`}
+                    className={`w-full text-right px-4 py-2 ${variant === 'solid' ? 'text-foreground hover:bg-accent' : 'text-white enhanced-text-light hover:bg-white/20'} transition-colors`}
                     onClick={() => handleThemeChange('Light')}
                   >
                     Light
@@ -92,7 +107,7 @@ export default function MobileHeader({ variant = 'transparent', showThemes = tru
                 </li>
                 <li>
                   <button 
-                    className={`w-full text-right px-4 py-2 ${variant === 'solid' ? 'text-foreground hover:bg-accent' : 'text-white hover:bg-white/10'} transition-colors`}
+                    className={`w-full text-right px-4 py-2 ${variant === 'solid' ? 'text-foreground hover:bg-accent' : 'text-white enhanced-text-light hover:bg-white/20'} transition-colors`}
                     onClick={() => handleThemeChange('Dark')}
                   >
                     Dark
@@ -100,10 +115,18 @@ export default function MobileHeader({ variant = 'transparent', showThemes = tru
                 </li>
                 <li>
                   <button 
-                    className={`w-full text-right px-4 py-2 ${variant === 'solid' ? 'text-foreground hover:bg-accent' : 'text-white hover:bg-white/10'} transition-colors`}
+                    className={`w-full text-right px-4 py-2 ${variant === 'solid' ? 'text-foreground hover:bg-accent' : 'text-white enhanced-text-light hover:bg-white/20'} transition-colors`}
                     onClick={() => handleThemeChange('Water')}
                   >
                     Water
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    className={`w-full text-right px-4 py-2 ${variant === 'solid' ? 'text-foreground hover:bg-accent' : 'text-white enhanced-text-light hover:bg-white/20'} transition-colors`}
+                    onClick={() => handleThemeChange('Final')}
+                  >
+                    Final
                   </button>
                 </li>
               </ul>

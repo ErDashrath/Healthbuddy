@@ -10,9 +10,9 @@ const Index = () => {
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [themeColors, setThemeColors] = useState({
     text: 'text-white',
-    cardBg: 'bg-card/40',
-    buttonBg: 'bg-card/30',
-    border: 'border-border'
+    cardBg: 'bg-white/20',
+    buttonBg: 'bg-white/10',
+    border: 'border-white'
   });
 
   useEffect(() => {
@@ -39,7 +39,7 @@ const Index = () => {
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="min-h-screen flex w-full relative" data-theme-colors={JSON.stringify(themeColors)}>
+      <div className="h-screen flex w-full relative overflow-hidden" data-theme-colors={JSON.stringify(themeColors)}>
         {/* Background Video */}
         <video
           ref={videoRef}
@@ -52,11 +52,11 @@ const Index = () => {
           Your browser does not support the video tag.
         </video>
         {/* Overlay for readability */}
-        <div className="absolute inset-0 bg-black bg-opacity-20 z-0" />
+        <div className="absolute inset-0 bg-black bg-opacity-10 z-0" />
         {/* Main Content */}
-        <div className="relative z-10 flex w-full min-h-screen">
+        <div className="relative z-10 flex w-full h-full">
           <AppSidebar />
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col h-full">
             <MobileHeader />
             <WorkingChatInterface themeColors={themeColors} />
           </div>

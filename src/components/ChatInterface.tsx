@@ -150,7 +150,7 @@ export default function ChatInterface({ themeColors }: ChatInterfaceProps) {
                 <Bot className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-white">HealthBuddy AI</h2>
+                <h2 className="text-lg font-semibold text-white">MindCare AI</h2>
                 <p className="text-sm text-white/70">Your mental health companion</p>
               </div>
             </div>
