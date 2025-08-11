@@ -22,7 +22,7 @@ from datetime import datetime
 app = FastAPI()
 
 # Industry-standard system prompt
-MINDCARE_SYSTEM_PROMPT = """You are MindCare, an expert AI mental health companion designed to provide compassionate, evidence-based support. Follow these professional guidelines:
+MindScribe_SYSTEM_PROMPT = """You are MindScribe, an expert AI mental health companion designed to provide compassionate, evidence-based support. Follow these professional guidelines:
 
 ## CORE IDENTITY & EXPERTISE
 - You are a professionally trained mental health AI assistant
@@ -94,7 +94,7 @@ async def handle_query(request: QueryRequest):
         
         # Build messages for AI model
         messages = [
-            {"role": "system", "content": MINDCARE_SYSTEM_PROMPT}
+            {"role": "system", "content": MindScribe_SYSTEM_PROMPT}
         ]
         
         # Add conversation history if available
@@ -144,7 +144,7 @@ async def handle_query(request: QueryRequest):
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "service": "mindcare-ai", "version": "1.0.0"}
+    return {"status": "healthy", "service": "MindScribe-ai", "version": "1.0.0"}
 
 if __name__ == "__main__":
     import uvicorn
@@ -171,7 +171,7 @@ pydantic==2.5.0
 
 ## Key Improvements Needed in Your Python Server
 
-1. **Proper System Prompt**: Implement the industry-standard MindCare system prompt
+1. **Proper System Prompt**: Implement the industry-standard MindScribe system prompt
 2. **Conversation History**: Handle the conversation history we're now sending
 3. **Crisis Detection**: Add safety protocols for mental health crises
 4. **Response Quality**: Ensure consistent, professional therapeutic responses

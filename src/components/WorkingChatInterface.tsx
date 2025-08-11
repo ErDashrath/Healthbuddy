@@ -178,7 +178,7 @@ export default function WorkingChatInterface({ themeColors }: ChatInterfaceProps
           {/* Header */}
           <div className="flex-shrink-0 px-6 py-4 border-b border-white/10 flex justify-between items-center">
             <div>
-              <h2 className="text-lg font-semibold text-white enhanced-text-visibility">MindCare AI Chat</h2>
+              <h2 className="text-lg font-semibold text-white enhanced-text-visibility">MindScribe AI Chat</h2>
               <p className="text-xs text-white/60 enhanced-text-light">
                 🧠 Session active • AI remembers our conversation • {messages.length} messages
               </p>
@@ -262,7 +262,7 @@ export default function WorkingChatInterface({ themeColors }: ChatInterfaceProps
         <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">
           <div className="max-w-2xl w-full text-center space-y-8">
             <div className="space-y-4">
-              <h1 className="text-4xl font-bold text-white enhanced-text-visibility">🤖 MindCare AI</h1>
+              <h1 className="text-4xl font-bold text-white enhanced-text-visibility">🤖 MindScribe AI</h1>
               <p className="text-lg text-white/90 enhanced-text-light">Your mental health companion</p>
             </div>
             

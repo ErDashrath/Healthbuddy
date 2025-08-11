@@ -131,7 +131,7 @@ export default function ChatInterface({ themeColors }: ChatInterfaceProps) {
         // Chat View
         <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full px-6 py-4">
           <div className="mb-4">
-            <h2 className="text-lg font-semibold text-white">MindCare Chat</h2>
+            <h2 className="text-lg font-semibold text-white">MindScribe Chat</h2>
           </div>
 
           {/* Messages */}

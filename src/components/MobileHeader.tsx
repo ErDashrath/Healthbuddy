@@ -83,7 +83,7 @@ export default function MobileHeader({ variant = 'transparent', showThemes = tru
         <div className="w-6 h-6 bg-gradient-wellness rounded-md flex items-center justify-center">
           <span className="text-xs font-bold text-primary-foreground">M</span>
         </div>
-        <span className={`font-semibold enhanced-text-visibility ${variant === 'solid' ? 'text-foreground' : 'text-white'}`}>MindCare</span>
+        <span className={`font-semibold enhanced-text-visibility ${variant === 'solid' ? 'text-foreground' : 'text-white'}`}>MindScribe</span>
       </div>
       
       {showThemes && (

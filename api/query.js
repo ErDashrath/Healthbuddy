@@ -76,7 +76,7 @@ export default async function handler(req, res) {
     if (session.messages.length === 1) {
       // First message - include comprehensive system instructions following industry best practices
       contextualQuery = `<system>
-You are MindCare, an expert AI mental health companion designed to provide compassionate, evidence-based support. You must adhere to the following guidelines:
+You are MindScribe, an expert AI mental health companion designed to provide compassionate, evidence-based support. You must adhere to the following guidelines:
 
 ROLE & EXPERTISE:
 - You are a professionally trained mental health AI assistant
@@ -116,11 +116,11 @@ OUTPUT FORMAT:
 ${query}
 </user>
 
-Please respond as MindCare following all the above guidelines.`;
+Please respond as MindScribe following all the above guidelines.`;
     } else {
       // Continuing conversation - provide context with enhanced system instructions
       contextualQuery = `<system>
-You are MindCare, an expert AI mental health companion. You have an ongoing conversation with this user. Please maintain consistency with your previous responses while following these professional standards:
+You are MindScribe, an expert AI mental health companion. You have an ongoing conversation with this user. Please maintain consistency with your previous responses while following these professional standards:
 
 CONVERSATIONAL CONTINUITY:
 - Reference and build upon previous conversation topics
@@ -149,7 +149,7 @@ ${conversationContext}
 ${query}
 </current_user_message>
 
-Based on our conversation history above, please respond as MindCare with personalized, contextual support that builds on our previous interactions.`;
+Based on our conversation history above, please respond as MindScribe with personalized, contextual support that builds on our previous interactions.`;
     }
 
     session.lastActivity = Date.now();
@@ -164,15 +164,13 @@ Based on our conversation history above, please respond as MindCare with persona
       conversationDepth: Math.min(10, session.messages.length)
     });
 
-    // Get API configuration from environment variables
+    // Get API key from environment variables
     const apiKey = process.env.API_KEY;
-    const externalApiUrl = process.env.EXTERNAL_API_URL || process.env.VITE_API_BASE_URL || 'https://subject-dirt-membrane-displays.trycloudflare.com';
     
     // Debug logging
     console.log('Environment variables check:');
     console.log('API_KEY exists:', !!apiKey);
     console.log('API_KEY length:', apiKey ? apiKey.length : 0);
-    console.log('External API URL:', externalApiUrl);
     
     if (!apiKey) {
       console.error('API_KEY not found in environment variables');
@@ -184,89 +182,41 @@ Based on our conversation history above, please respond as MindCare with persona
 
     // Forward request to Python server with structured data for better processing
     console.log('Making request to external API with structured context...');
-    
-    let response;
-    let lastError;
-    
-    // Try multiple endpoints for reliability
-    const endpoints = [
-      `${externalApiUrl}/query`,
-      // Fallback endpoints can be added here
-    ];
-    
-    for (const endpoint of endpoints) {
-      try {
-        console.log(`Attempting connection to: ${endpoint}`);
-        response = await fetch(endpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': apiKey
-          },
-          body: JSON.stringify({ 
-            // Send structured data for Python server to handle
-            query: query, // Raw user query
-            contextualQuery: contextualQuery, // Formatted prompt (fallback)
-            sessionData: {
-              sessionId: sessionId,
-              messageCount: session.messages.length,
-              isFirstMessage: session.messages.length === 1,
-              conversationHistory: session.messages.slice(-10).map(msg => ({
-                role: msg.role,
-                content: msg.content,
-                timestamp: msg.timestamp
-              }))
-            },
-            clientInfo: {
-              source: 'mindcare_web',
-              version: '1.0.0',
-              requestTime: Date.now(),
-              deployment: process.env.VERCEL ? 'vercel' : 'local'
-            }
-          }),
-          timeout: 15000 // 15 second timeout
-        });
-        
-        if (response.ok) {
-          console.log(`✅ Successfully connected to: ${endpoint}`);
-          break;
-        } else {
-          console.log(`❌ Failed to connect to: ${endpoint} (Status: ${response.status})`);
-          lastError = new Error(`API error: ${response.status}`);
+    const response = await fetch('https://subject-dirt-membrane-displays.trycloudflare.com/query', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey
+      },
+      body: JSON.stringify({ 
+        // Send structured data for Python server to handle
+        query: query, // Raw user query
+        contextualQuery: contextualQuery, // Formatted prompt (fallback)
+        sessionData: {
+          sessionId: sessionId,
+          messageCount: session.messages.length,
+          isFirstMessage: session.messages.length === 1,
+          conversationHistory: session.messages.slice(-10).map(msg => ({
+            role: msg.role,
+            content: msg.content,
+            timestamp: msg.timestamp
+          }))
+        },
+        clientInfo: {
+          source: 'MindScribe_web',
+          version: '1.0.0',
+          requestTime: Date.now()
         }
-      } catch (error) {
-        console.error(`❌ Connection error to ${endpoint}:`, error.message);
-        lastError = error;
-        continue; // Try next endpoint
-      }
-    }
-    
-    // If all endpoints failed, provide fallback response
-    if (!response || !response.ok) {
-      console.error('All API endpoints failed, providing fallback response');
-      
-      // Add fallback AI message to session
-      const fallbackMessage = {
-        id: `msg_${Date.now()}_fallback`,
-        content: "I'm currently experiencing some technical difficulties connecting to my AI services. However, I'm still here to support you! While I work on restoring full functionality, please know that your mental health and wellbeing are important. If you're in crisis or need immediate support, please reach out to a mental health professional or crisis hotline in your area. I'll be back to full capacity soon!",
-        sender: 'ai'
-      };
-      
-      session.messages.push({
-        role: 'ai',
-        content: fallbackMessage.content,
-        timestamp: Date.now()
-      });
-      
-      return res.status(200).json({
-        answer: fallbackMessage.content,
-        sessionId: sessionId,
-        status: 'fallback',
-        error: 'External AI service temporarily unavailable'
-      });
-    }
+      })
+    });
 
     console.log('External API response status:', response.status);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('External API error:', errorText);
+      throw new Error(`API error: ${response.status} - ${errorText}`);
+    }
 
     const data = await response.json();
     
@@ -298,8 +248,7 @@ Based on our conversation history above, please respond as MindCare with persona
     res.status(200).json({
       ...data,
       sessionId: sessionId,
-      messageCount: session.messages.length,
-      deployment: process.env.VERCEL ? 'vercel' : 'local'
+      messageCount: session.messages.length
     });
 
   } catch (error) {

@@ -103,7 +103,7 @@ export default function AppSidebar() {
             </div>
             {!isCollapsed && (
               <div className="min-w-0">
-                <h1 className="font-semibold text-white truncate enhanced-text-visibility">MindCare</h1>
+                <h1 className="font-semibold text-white truncate enhanced-text-visibility">MindScribe</h1>
                 <span className="text-xs text-white/90 bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded-full whitespace-nowrap border border-white/30 enhanced-text-light">
                   AI Chat Beta
                 </span>
